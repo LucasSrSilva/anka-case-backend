@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cliente {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  idade     Int
+  status    Status @default(ativo)
+  perfil    Perfil
+  metas     Meta[]
+  carteira  Carteira?
+  seguros   Seguro[]
+  simulacoes Simulacao[]
+  movimentacoes Movimentacao[]
+}
+enum Perfil {
+  Solteiro
+  Com_Filho
+  Com_Dependente
+}
+
+enum Status {
+  ativo
+  inativo
+}
+
+model Meta {
+  id         String   @id @default(uuid())
+  tipo       TipoMeta
+  valorAlvo  Float
+  dataAlvo   DateTime
+  clienteId  String
+  cliente    Cliente   @relation(fields: [clienteId], references: [id])
+}
+
+enum TipoMeta {
+  aposentadoria
+  objetivo
+}
+
+model Carteira {
+  id               String   @id @default(uuid())
+  classeAtivo      String
+  percentual       Float
+  patrimonioTotal  Float
+  clienteId        String   @unique
+  cliente          Cliente  @relation(fields: [clienteId], references: [id])
+}
+
+model Seguro {
+  id        String   @id @default(uuid())
+  tipo      TipoSeguro
+  valor     Float
+  vigencia  DateTime
+  clienteId String
+  cliente   Cliente   @relation(fields: [clienteId], references: [id])
+}
+
+enum TipoSeguro {
+  vida
+  invalidez
+}
+
+model Simulacao {
+  idSimulacao      String   @id @default(uuid())
+  nomeSimulacao    String
+  dataSimulacao    DateTime
+  dadosProjecao    Json
+  idadeAposentadoria Int
+  versao           Int
+  clienteId        String
+  cliente          Cliente   @relation(fields: [clienteId], references: [id])
+}
+
+model Movimentacao {
+  id         String   @id @default(uuid())
+  tipo       String
+  valor      Float
+  frequencia Frequencia
+  clienteId  String
+  cliente    Cliente   @relation(fields: [clienteId], references: [id])
+}
+
+enum Frequencia {
+  unica
+  mensal
+  anual
+}
