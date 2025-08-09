@@ -17,6 +17,10 @@ export type ClientResponse = {
   movimentacoes?: any[];
 };
 
+export type ClientCreateInput = z.infer<typeof clientSchema>;
+
+export type ClientUpdateInput = Partial<ClientCreateInput>;
+
 export type GetClientByIdParams = {
   id: string;
 };
@@ -31,12 +35,4 @@ export type UpdateClientParams = {
 
 export type DeleteClientParams = {
   id: string;
-};
-
-export type GetClientsByProfileParams = {
-  perfil: 'Solteiro' | 'Com_Filho' | 'Com_Dependente';
-};
-
-export type SearchClientsByNameQuery = {
-  nome: string;
 };

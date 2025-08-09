@@ -10,41 +10,17 @@ import {
   clientSearchQuerySchema,
   errorResponseSchema,
   clientResponseSchema,
-  clientCreateResponseSchema, // Nova importação
+  clientCreateResponseSchema,
+  successResponseSchema, // Nova importação
 } from './client.schema';
+import { FastifyTypedInstance } from '../../types';
 
-export async function clientRoutes(app: FastifyInstance) {
-  app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'POST',
-    url: '/clients',
+export async function clientRoutes(app: FastifyTypedInstance) {
+  
+  app.get('/clients', {
     schema: {
-      body: clientSchema,
-      response: {
-        201: clientCreateResponseSchema, 
-        400: errorResponseSchema,
-      },
-    },
-    handler: async (request, reply) => {
-      try {
-        const client = await clientService.createClient(request.body);
-        reply.code(201).send({
-          success: true,
-          message: 'Cliente criado com sucesso',
-          data: client,
-        });
-      } catch (error: any) {
-        reply.code(400).send({
-          error: 'Erro ao criar cliente',
-          message: error.message,
-        });
-      }
-    },
-  });
-
-  app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'GET',
-    url: '/clients',
-    schema: {
+      tags: ['clients'],
+      description: 'get clients',
       response: {
         200: clientResponseSchema.array(),
         500: errorResponseSchema,
@@ -56,17 +32,17 @@ export async function clientRoutes(app: FastifyInstance) {
         reply.send(clients);
       } catch (error: any) {
         reply.code(500).send({
-          error: 'Erro ao buscar clientes',
+          error: 'Erro ao listar clientes',
           message: error.message,
         });
       }
-    },
+    }
   });
 
-  app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'GET',
-    url: '/clients/:id',
+  app.get('/clients/:id', {
     schema: {
+      tags: ['clients'],
+      description: 'Get a client by ID',
       params: clientIdParamsSchema,
       response: {
         200: clientResponseSchema,
@@ -91,13 +67,13 @@ export async function clientRoutes(app: FastifyInstance) {
           });
         }
       }
-    },
+    }
   });
 
-  app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'GET',
-    url: '/clients/email/:email',
+   app.get('/clients/email/:email', {
     schema: {
+      tags: ['clients'],
+      description: 'Get a client by email',
       params: clientEmailParamsSchema,
       response: {
         200: clientResponseSchema,
@@ -125,10 +101,45 @@ export async function clientRoutes(app: FastifyInstance) {
     },
   });
 
-  app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'PUT',
-    url: '/clients/:id',
+  app.post('/clients', {
     schema: {
+      tags: ['clients'],
+      description: 'Create a new client',
+      body: clientSchema,
+      response: {
+        201: clientCreateResponseSchema,
+        500: errorResponseSchema,
+        409: errorResponseSchema,
+      },
+    },
+    handler: async (request, reply) => {
+      try {
+        const client = await clientService.createClient(request.body);
+        reply.code(201).send({
+          success: true,
+          message: 'Cliente criado com sucesso',
+          data: client,
+        });
+      } catch (error: any) {
+        if (error.message?.includes('Unique')) {
+          reply.code(409).send({
+            error: 'Conflito ao criar cliente',
+            message: 'Já existe um cliente com este email.',
+          });
+        } else {
+          reply.code(500).send({
+            error: 'Erro ao criar cliente',
+            message: error.message,
+          });
+        }
+      }
+    },
+  });
+
+  app.put('/clients/:id', {
+    schema: {
+      tags: ['clients'],
+      description: 'Update a client by ID',
       params: clientIdParamsSchema,
       body: clientUpdateSchema,
       response: {
@@ -163,21 +174,24 @@ export async function clientRoutes(app: FastifyInstance) {
     },
   });
 
-  app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'DELETE',
-    url: '/clients/:id',
+  app.delete('/clients/:id', {
     schema: {
+      tags: ['clients'],
+      description: 'Delete a client by ID',
       params: clientIdParamsSchema,
       response: {
-        200: clientResponseSchema,
+        200: successResponseSchema,
         404: errorResponseSchema,
         500: errorResponseSchema,
       },
     },
     handler: async (request, reply) => {
       try {
-        const client = await clientService.deleteClient(request.params.id);
-        reply.send(client);
+        await clientService.deleteClient(request.params.id);
+        reply.send(successResponseSchema.parse({
+          success: true,
+          message: 'Cliente deletado com sucesso',
+        }));
       } catch (error: any) {
         if (error.message === 'Cliente não encontrado') {
           reply.code(404).send({
@@ -190,75 +204,6 @@ export async function clientRoutes(app: FastifyInstance) {
             message: error.message,
           });
         }
-      }
-    },
-  });
-
-  app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'GET',
-    url: '/clients/status/active',
-    schema: {
-      response: {
-        200: clientResponseSchema.array(),
-        500: errorResponseSchema,
-      },
-    },
-    handler: async (request, reply) => {
-      try {
-        const clients = await clientService.getActiveClients();
-        reply.send(clients);
-      } catch (error: any) {
-        reply.code(500).send({
-          error: 'Erro ao buscar clientes ativos',
-          message: error.message,
-        });
-      }
-    },
-  });
-
-  app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'GET',
-    url: '/clients/profile/:perfil',
-    schema: {
-      params: clientProfileParamsSchema,
-      response: {
-        200: clientResponseSchema.array(),
-        500: errorResponseSchema,
-      },
-    },
-    handler: async (request, reply) => {
-      try {
-        const clients = await clientService.getClientsByProfile(request.params.perfil);
-        reply.send(clients);
-      } catch (error: any) {
-        reply.code(500).send({
-          error: 'Erro ao buscar clientes por perfil',
-          message: error.message,
-        });
-      }
-    },
-  });
-
-  app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'GET',
-    url: '/clients/search',
-    schema: {
-      querystring: clientSearchQuerySchema,
-      response: {
-        200: clientResponseSchema.array(),
-        400: errorResponseSchema,
-        500: errorResponseSchema,
-      },
-    },
-    handler: async (request, reply) => {
-      try {
-        const clients = await clientService.searchClientsByName(request.query.nome);
-        reply.send(clients);
-      } catch (error: any) {
-        reply.code(500).send({
-          error: 'Erro ao buscar clientes por nome',
-          message: error.message,
-        });
       }
     },
   });

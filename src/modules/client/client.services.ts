@@ -1,11 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import { clientSchema } from './client.schema';
 import { z } from 'zod';
+import { ClientCreateInput, ClientUpdateInput } from './client.types';
 
 const prisma = new PrismaClient();
 
-export type ClientCreateInput = z.infer<typeof clientSchema>;
-export type ClientUpdateInput = Partial<ClientCreateInput>;
+
 
 export class ClientService {
   async createClient(data: ClientCreateInput) {
@@ -89,54 +89,6 @@ export class ClientService {
 
     return await prisma.cliente.delete({
       where: { id },
-    });
-  }
-
-  async getActiveClients() {
-    return await prisma.cliente.findMany({
-      where: {
-        status: 'ativo',
-      },
-      include: {
-        metas: true,
-        carteira: true,
-        seguros: true,
-        simulacoes: true,
-        movimentacoes: true,
-      },
-    });
-  }
-
-  async getClientsByProfile(perfil: 'Solteiro' | 'Com_Filho' | 'Com_Dependente') {
-    return await prisma.cliente.findMany({
-      where: {
-        perfil,
-      },
-      include: {
-        metas: true,
-        carteira: true,
-        seguros: true,
-        simulacoes: true,
-        movimentacoes: true,
-      },
-    });
-  }
-
-  async searchClientsByName(nome: string) {
-    return await prisma.cliente.findMany({
-      where: {
-        nome: {
-          contains: nome,
-          mode: 'insensitive',
-        },
-      },
-      include: {
-        metas: true,
-        carteira: true,
-        seguros: true,
-        simulacoes: true,
-        movimentacoes: true,
-      },
     });
   }
 }
