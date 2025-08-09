@@ -9,6 +9,7 @@ import {
 } from 'fastify-type-provider-zod';
 import { clientRoutes } from './modules/client/client.routes';
 import fastifyCors from '@fastify/cors';
+import { PlannerRoutes } from './modules/planner/planner.routes';
 
 export const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -29,3 +30,4 @@ app.register(fastifySwaggerUI, {
   routePrefix: '/docs'
 });
 app.register(clientRoutes);
+app.register(PlannerRoutes);

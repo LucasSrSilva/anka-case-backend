@@ -1,17 +1,13 @@
-import { FastifyInstance } from 'fastify';
-import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { clientService } from './client.services';
 import {
   clientSchema,
   clientUpdateSchema,
   clientIdParamsSchema,
   clientEmailParamsSchema,
-  clientProfileParamsSchema,
-  clientSearchQuerySchema,
   errorResponseSchema,
   clientResponseSchema,
   clientCreateResponseSchema,
-  successResponseSchema, // Nova importação
+  successResponseSchema,
 } from './client.schema';
 import { FastifyTypedInstance } from '../../types';
 
@@ -207,4 +203,20 @@ export async function clientRoutes(app: FastifyTypedInstance) {
       }
     },
   });
+  app.get('/clients/dashboard', {
+    schema: {
+      tags: ['dashboard']
+    },
+    handler: async (request, reply) => {
+      try {
+        const dashboardData = await clientService.getDashBoard();
+        reply.send(dashboardData);
+      } catch (error: any) {
+        reply.code(500).send({
+          error: 'Erro interno do servidor',
+          message: error.message,
+        });
+      }
+    }
+  })
 }

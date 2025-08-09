@@ -1,5 +1,6 @@
 import z from "zod";
 import PrismaClient from "@prisma/client";
+import { planejamentoSchema } from "../planner/planner.schema";
 
 export const clientSchema = z.object({
   nome: z.string().max(32),
@@ -17,14 +18,6 @@ export const clientEmailParamsSchema = z.object({
   email: z.email(),
 });
 
-export const clientProfileParamsSchema = z.object({
-  perfil: z.enum(PrismaClient.Perfil),
-});
-
-export const clientSearchQuerySchema = z.object({
-  nome: z.string().min(1),
-});
-
 export const clientUpdateSchema = clientSchema.partial();
 
 export const errorResponseSchema = z.object({
@@ -38,7 +31,8 @@ export const successResponseSchema = z.object({
 });
 
 export const clientResponseSchema = clientSchema.extend({
-  id: z.uuid(),
+  id: z.string(),
+  planejamentos: z.array(planejamentoSchema).optional(),
 });
 
 export const clientCreateResponseSchema = z.object({

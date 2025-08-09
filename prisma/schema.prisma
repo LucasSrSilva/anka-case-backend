@@ -14,10 +14,9 @@ model Cliente {
   idade     Int
   status    Status @default(ativo)
   perfil    Perfil
-  metas     Meta[]
   carteira  Carteira?
   seguros   Seguro[]
-  simulacoes Simulacao[]
+  planejamentos Planejamento[]
   movimentacoes Movimentacao[]
 }
 enum Perfil {
@@ -37,7 +36,8 @@ model Meta {
   valorAlvo  Float
   dataAlvo   DateTime
   clienteId  String
-  cliente    Cliente   @relation(fields: [clienteId], references: [id])
+  planejamentoId String?
+  planejamento Planejamento? @relation(fields: [planejamentoId], references: [idPlanejamento])
 }
 
 enum TipoMeta {
@@ -68,12 +68,12 @@ enum TipoSeguro {
   invalidez
 }
 
-model Simulacao {
-  idSimulacao      String   @id @default(uuid())
-  nomeSimulacao    String
-  dataSimulacao    DateTime
-  dadosProjecao    Json
-  idadeAposentadoria Int
+model Planejamento {
+  idPlanejamento      String   @id @default(uuid())
+  nomePlanejamento    String
+  dataPlanejamento    DateTime
+  metas               Meta[]
+  idadeAposentadoria  Int
   versao           Int
   clienteId        String
   cliente          Cliente   @relation(fields: [clienteId], references: [id])

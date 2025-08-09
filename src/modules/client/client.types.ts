@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { clientSchema } from './client.schema';
+import { Perfil, Planejamento, Status } from '@prisma/client';
 
 export type Client = z.infer<typeof clientSchema>;
 
@@ -8,12 +9,12 @@ export type ClientResponse = {
   nome: string;
   email: string;
   idade: number;
-  status: 'ativo' | 'inativo';
-  perfil: 'Solteiro' | 'Com_Filho' | 'Com_Dependente';
+  status: Status;
+  perfil: Perfil;
   metas?: any[];
   carteira?: any;
   seguros?: any[];
-  simulacoes?: any[];
+  planejamentos?: Planejamento[];
   movimentacoes?: any[];
 };
 
