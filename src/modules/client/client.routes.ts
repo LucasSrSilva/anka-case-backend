@@ -3,7 +3,6 @@ import {
   clientSchema,
   clientUpdateSchema,
   clientIdParamsSchema,
-  clientEmailParamsSchema,
   errorResponseSchema,
   clientResponseSchema,
   clientCreateResponseSchema,
@@ -64,37 +63,6 @@ export async function clientRoutes(app: FastifyTypedInstance) {
         }
       }
     }
-  });
-
-   app.get('/clients/email/:email', {
-    schema: {
-      tags: ['clients'],
-      description: 'Get a client by email',
-      params: clientEmailParamsSchema,
-      response: {
-        200: clientResponseSchema,
-        404: errorResponseSchema,
-        500: errorResponseSchema,
-      },
-    },
-    handler: async (request, reply) => {
-      try {
-        const client = await clientService.getClientByEmail(request.params.email);
-        reply.send(client);
-      } catch (error: any) {
-        if (error.message === 'Cliente não encontrado') {
-          reply.code(404).send({
-            error: 'Cliente não encontrado',
-            message: error.message,
-          });
-        } else {
-          reply.code(500).send({
-            error: 'Erro interno do servidor',
-            message: error.message,
-          });
-        }
-      }
-    },
   });
 
   app.post('/clients', {

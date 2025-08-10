@@ -44,24 +44,6 @@ export class ClientService {
     return client;
   }
 
-  async getClientByEmail(email: string) {
-    const client = await prisma.cliente.findUnique({
-      where: { email },
-      include: {
-        carteira: true,
-        seguros: true,
-  planejamentos: true,
-        movimentacoes: true,
-      },
-    });
-
-    if (!client) {
-      throw new Error('Cliente não encontrado');
-    }
-
-    return client;
-  }
-
   async updateClient(id: string, data: ClientUpdateInput) {
     await this.getClientById(id);
 

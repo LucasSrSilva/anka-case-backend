@@ -8,11 +8,11 @@ export class PlanejamentoService {
     async createPlanejamento(data: CreatePlanejamento) {
         const validatedData = planejamentoSchema.parse(data);
 
-        const { clientId, ...rest } = validatedData;
+        const { clienteId, ...rest } = validatedData;
         const prismaData = {
             ...rest,
             dataPlanejamento: new Date(),
-            cliente: { connect: { id: clientId } }
+            cliente: { connect: { id: clienteId } }
         };
 
         return await prisma.planejamento.create({
