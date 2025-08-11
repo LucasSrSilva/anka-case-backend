@@ -9,7 +9,8 @@
     "start": "node dist/src/server.js",
     "test": "jest",
     "lint": "eslint . --ext .ts",
-    "coverage": "jest --coverage"
+    "coverage": "jest --coverage",
+    "prisma:seed": "ts-node-dev prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
